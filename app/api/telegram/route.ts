@@ -75,9 +75,10 @@ export async function POST(request: NextRequest) {
 
     // Send success message
     const typeEmoji = parsed.type === "income" ? "📈" : "📉"
+    const dashboardUrl = `${request.nextUrl.origin}/?user_id=${userId}`
     await sendTelegramMessage(
       chatId,
-      `${typeEmoji} Registrado!\n${parsed.type === "income" ? "+" : "-"}R$ ${parsed.amount.toFixed(2)}\n📂 ${category}`,
+      `${typeEmoji} Registrado!\n${parsed.type === "income" ? "+" : "-"}R$ ${parsed.amount.toFixed(2)}\n📂 ${category}\n\n🔗 Dashboard:\n${dashboardUrl}`,
     )
 
     return NextResponse.json({ ok: true })
