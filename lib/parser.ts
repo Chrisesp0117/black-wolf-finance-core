@@ -1,5 +1,5 @@
 // Category keywords mapping for automatic categorization
-const categoryKeywords: { [key: string]: string } = {
+const categoryKeywords: { [key: string]: string[] } = {
   alimentação: ["lanche", "comida", "restaurante", "pizza", "burger", "sanduiche", "cafe", "supermercado", "mercado", "padaria", "acaraje"],
   transporte: ["uber", "lyft", "taxi", "busao", "metro", "onibus", "gasolina", "combustivel", "estacionamento"],
   trabalho: ["freelance", "freela", "salário", "salario", "pagamento", "cliente"],
