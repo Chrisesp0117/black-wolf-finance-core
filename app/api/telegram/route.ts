@@ -5,6 +5,25 @@ import { parseTransaction, categorizeTransaction } from "@/lib/parser"
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN
 const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`
 
+async function sendTelegramMessage(chatId: number, text: string) {
+  if (!TELEGRAM_BOT_TOKEN) {
+    throw new Error("Missing TELEGRAM_BOT_TOKEN environment variable")
+  }
+
+  const response = await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chat_id: chatId, text }),
+  })
+
+  if (!response.ok) {
+    const responseText = await response.text()
+    console.error("Telegram sendMessage failed:", response.status, responseText)
+  }
+
+  return response
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -28,14 +47,10 @@ export async function POST(request: NextRequest) {
 
     if (!parsed) {
       // Send error message
-      await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text: "❌ Formato inválido. Use:\n-categoria valor (despesa)\n+categoria valor (receita)\n\nExemplos:\n-lanche 15\n+salário 1400",
-        }),
-      })
+      await sendTelegramMessage(
+        chatId,
+        "❌ Formato inválido. Use:\n-categoria valor (despesa)\n+categoria valor (receita)\n\nExemplos:\n-lanche 15\n+salário 1400",
+      )
       return NextResponse.json({ ok: true })
     }
 
@@ -54,27 +69,16 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error("Supabase error:", error)
-      await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text: "⚠️ Erro ao registrar transação",
-        }),
-      })
+      await sendTelegramMessage(chatId, "⚠️ Erro ao registrar transação")
       return NextResponse.json({ ok: true })
     }
 
     // Send success message
     const typeEmoji = parsed.type === "income" ? "📈" : "📉"
-    await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: `${typeEmoji} Registrado!\n${parsed.type === "income" ? "+" : "-"}R$ ${parsed.amount.toFixed(2)}\n📂 ${category}`,
-      }),
-    })
+    await sendTelegramMessage(
+      chatId,
+      `${typeEmoji} Registrado!\n${parsed.type === "income" ? "+" : "-"}R$ ${parsed.amount.toFixed(2)}\n📂 ${category}`,
+    )
 
     return NextResponse.json({ ok: true })
   } catch (error) {
