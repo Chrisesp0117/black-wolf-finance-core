@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 
-export async function GET(request: NextRequest, { params }: { params: { userId: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ userId: string }> }) {
   try {
-    const userId = params.userId
+    const { userId: userIdStr } = await params
+    const userId = parseInt(userIdStr, 10)
     const searchParams = request.nextUrl.searchParams
     const startDate = searchParams.get("startDate")
     const endDate = searchParams.get("endDate")
