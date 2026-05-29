@@ -22,28 +22,33 @@ export function categorizeTransaction(description: string): string {
   return "outros"
 }
 
-// Parse Telegram command: "-category value" or "+category value"
-export function parseTransaction(message: string): { type: "expense" | "income"; amount: number; description: string } | null {
+// Parse Telegram command: "-VALOR NOME FORMA_PAG" or "+VALOR NOME FORMA_PAG"
+export function parseTransaction(message: string): {
+  type: "expense" | "income"
+  amount: number
+  description: string
+  paymentMethod: string
+} | null {
   const trimmed = message.trim()
 
-  // Match: -/+ followed by description and number
-  const expenseMatch = trimmed.match(/^-\s*(.+?)\s+(\d+(?:[.,]\d{2})?)$/)
-  if (expenseMatch) {
-    return {
-      type: "expense",
-      description: expenseMatch[1].trim(),
-      amount: parseFloat(expenseMatch[2].replace(",", ".")),
-    }
+  // Match: +|- amount name paymentMethod
+  // Example: -10 lanche pix
+  const match = trimmed.match(/^([+-])\s*(\d+(?:[.,]\d{1,2})?)\s+(.+?)\s+([^\s]+)$/)
+  if (!match) return null
+
+  const signal = match[1]
+  const amount = parseFloat(match[2].replace(",", "."))
+  const description = match[3].trim()
+  const paymentMethod = match[4].trim().replace(/_/g, " ")
+
+  if (!Number.isFinite(amount) || amount <= 0 || !description || !paymentMethod) {
+    return null
   }
 
-  const incomeMatch = trimmed.match(/^\+\s*(.+?)\s+(\d+(?:[.,]\d{2})?)$/)
-  if (incomeMatch) {
-    return {
-      type: "income",
-      description: incomeMatch[1].trim(),
-      amount: parseFloat(incomeMatch[2].replace(",", ".")),
-    }
+  return {
+    type: signal === "+" ? "income" : "expense",
+    amount,
+    description,
+    paymentMethod,
   }
-
-  return null
 }

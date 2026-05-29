@@ -17,17 +17,10 @@ export default function ClientDashboard({ userId }: { userId: string }) {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
-  const isValidUserId = /^\d+$/.test(userId)
 
   useEffect(() => {
-    if (!isValidUserId) {
-      setTransactions([])
-      setLoading(false)
-      return
-    }
-
     fetchTransactions()
-  }, [userId, selectedCategory, isValidUserId])
+  }, [userId, selectedCategory])
 
   async function fetchTransactions() {
     try {
@@ -63,17 +56,6 @@ export default function ClientDashboard({ userId }: { userId: string }) {
           <h1 className="text-4xl font-bold mb-2">🐺 BlackWolf Finance</h1>
           <p className="text-gray-400">Gestão financeira simplificada</p>
         </div>
-
-        {!isValidUserId && (
-          <div className="mb-8 bg-yellow-900 border border-yellow-600 rounded-lg p-6">
-            <p className="text-yellow-100">
-              <strong>⚠️ Abra com seu ID:</strong> este painel precisa do parâmetro <code className="bg-yellow-800 px-2 py-1 rounded">?user_id=SEU_ID</code>.
-            </p>
-            <p className="text-yellow-200 mt-2 text-sm">
-              Exemplo: <code className="bg-yellow-800 px-2 py-1 rounded">https://black-wolf-finance-core.vercel.app/?user_id=12345678</code>
-            </p>
-          </div>
-        )}
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
@@ -165,7 +147,7 @@ export default function ClientDashboard({ userId }: { userId: string }) {
         {/* Setup Instructions */}
         <div className="mt-8 bg-yellow-900 border border-yellow-600 rounded-lg p-6">
           <p className="text-yellow-100">
-            <strong>⚠️ Setup Telegram:</strong> Envie comandos como <code className="bg-yellow-800 px-2 py-1 rounded">-lanche 15</code> ou <code className="bg-yellow-800 px-2 py-1 rounded">+salário 1400</code> para registrar transações
+            <strong>⚠️ Setup Telegram:</strong> Envie no formato <code className="bg-yellow-800 px-2 py-1 rounded">-VALOR NOME FORMA_DE_PAG</code> (ex: <code className="bg-yellow-800 px-2 py-1 rounded">-10 lanche pix</code>)
           </p>
         </div>
       </div>
