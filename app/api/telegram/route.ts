@@ -129,7 +129,8 @@ export async function POST(request: NextRequest) {
           amount: parsedFromMessage.amount,
           type: parsedFromMessage.type,
           category: parsedFromMessage.category,
-          description: `${parsedFromMessage.name} (${parsedFromMessage.paymentMethod})`,
+          description: parsedFromMessage.name,
+          payment_method: parsedFromMessage.paymentMethod,
           created_at: new Date().toISOString(),
         })
 
@@ -147,7 +148,7 @@ export async function POST(request: NextRequest) {
         await callTelegram("editMessageText", {
           chat_id: chatId,
           message_id: messageId,
-          text: `${typeEmoji} Registro confirmado!\nNome: ${parsedFromMessage.name}\nCategoria: ${parsedFromMessage.category}\nValor: ${parsedFromMessage.type === "income" ? "+" : "-"}R$ ${parsedFromMessage.amount.toFixed(2)}\nForma de pagamento: ${parsedFromMessage.paymentMethod}\n\n🔗 Dashboard:\n${dashboardUrl}`,
+          text: `${typeEmoji} Registro confirmado!\nNome: ${parsedFromMessage.name}\nCategoria: ${parsedFromMessage.category}\nValor: ${parsedFromMessage.type === "income" ? "+" : "-"}R$ ${parsedFromMessage.amount.toFixed(2)}\nForma de pagamento: ${parsedFromMessage.paymentMethod}`,
         })
 
         return NextResponse.json({ ok: true })
